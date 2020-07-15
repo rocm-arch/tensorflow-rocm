@@ -14,7 +14,7 @@ url="https://www.tensorflow.org/"
 license=('APACHE')
 arch=('x86_64')
 depends=('c-ares' 'intel-mkl' 'onednn')
-makedepends=('bazel' 'python-numpy' 'rocm' 'rccl' 'git' 'gcc9'
+makedepends=('bazel' 'python-numpy' 'rocm' 'rccl' 'git' 'gcc'
              'python-pip' 'python-wheel' 'python-setuptools' 'python-h5py'
              'python-keras-applications' 'python-keras-preprocessing')
 optdepends=('tensorboard: Tensorflow visualization toolkit'
@@ -77,19 +77,34 @@ prepare() {
   export TF_IGNORE_MAX_BAZEL_VERSION=1
   export TF_MKL_ROOT=/opt/intel/mkl
   export NCCL_INSTALL_PATH=/usr
-  export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-9
-  export HOST_C_COMPILER=/usr/bin/gcc-9
-  export HOST_CXX_COMPILER=/usr/bin/g++-9
+  # export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-9
+  export GCC_HOST_COMPILER_PATH=/opt/rocm/hip/bin/hipcc
+  # export HOST_C_COMPILER=/usr/bin/gcc-9
+  export HOST_C_COMPILER=/opt/rocm/hip/bin/hipcc
+  # export HOST_CXX_COMPILER=/usr/bin/g++-9
+  export HOST_CXX_COMPILER=/opt/rocm/hip/bin/hipcc
   export TF_CUDA_CLANG=0  # Clang currently disabled because it's not compatible at the moment.
   export CLANG_CUDA_COMPILER_PATH=/usr/bin/clang
   export TF_CUDA_PATHS=/opt/cuda,/usr/lib,/usr
-  export TF_CUDA_VERSION=$(/opt/cuda/bin/nvcc --version | sed -n 's/^.*release \(.*\),.*/\1/p')
-  export TF_CUDNN_VERSION=$(sed -n 's/^#define CUDNN_MAJOR\s*\(.*\).*/\1/p' /usr/include/cudnn.h)
+  export TF_CUDA_VERSION=$([ -e /opt/cuda ] && /opt/cuda/bin/nvcc --version | sed -n 's/^.*release \(.*\),.*/\1/p' || echo "")
+  export TF_CUDNN_VERSION=$([ -e /usr/include/cudnn.h ] && sed -n 's/^#define CUDNN_MAJOR\s*\(.*\).*/\1/p' /usr/include/cudnn.h || echo "")
   export TF_CUDA_COMPUTE_CAPABILITIES=5.2,5.3,6.0,6.1,6.2,7.0,7.2,7.5,8.0
 
+  export ROCM_PATH=/opt/rocm
+  export HCC_HOME=$ROCM_PATH/hcc
+
+  export HIP_PATH=$ROCM_PATH/hip
+  export OPENCL_ROOT=$ROCM_PATH/opencl
+  export PATH="$HCC_HOME/bin:$HIP_PATH/bin:${PATH}"
+  export PATH="$ROCM_PATH/bin:${PATH}"
+  export PATH="$OPENCL_ROOT/bin:${PATH}"
+  export HCC_HOME=/opt/rocm/hcc
+  export HIP_PATH=/opt/rocm/hip
+  export PATH=$HCC_HOME/bin:$HIP_PATH/bin:$PATH
+
   # Required until https://github.com/tensorflow/tensorflow/issues/39467 is fixed.
-  export CC=gcc-9
-  export CXX=g++-9
+  export CC=/opt/rocm/hip/bin/hipcc
+  export CXX=/opt/rocm/hip/bin/hipcc
 }
 
 build() {
@@ -99,7 +114,7 @@ build() {
   export TF_NEED_ROCM=1
   ./configure
   bazel \
-    build --config=mkl -c opt \
+    build -s --config=mkl -c opt \
       //tensorflow:libtensorflow.so \
       //tensorflow:libtensorflow_cc.so \
       //tensorflow:install_headers \
@@ -113,7 +128,7 @@ build() {
   export TF_NEED_ROCM=1
   ./configure
   bazel \
-    build --config=mkl --config=avx2_linux -c opt \
+    build -s --config=mkl --config=avx2_linux -c opt \
       //tensorflow:libtensorflow.so \
       //tensorflow:libtensorflow_cc.so \
       //tensorflow:install_headers \

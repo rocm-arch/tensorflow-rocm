@@ -1,0 +1,12 @@
+diff --color --unified --recursive --text src/tensorflow-2.2.0/tensorflow/stream_executor/gpu/gpu_types.h src/tensorflow-2.2.0.new/tensorflow/stream_executor/gpu/gpu_types.h
+--- src/tensorflow-2.2.0/tensorflow/stream_executor/gpu/gpu_types.h	2020-05-05 22:58:49.000000000 +0100
++++ src/tensorflow-2.2.0.new/tensorflow/stream_executor/gpu/gpu_types.h	2020-07-14 21:07:05.406803883 +0100
+@@ -24,7 +24,7 @@
+ 
+ #include "rocm/include/hip/hip_complex.h"
+ #include "rocm/include/hip/hip_runtime.h"
+-#include "rocm/include/hiprand/hiprand.h"
++#include "rocm/hiprand/include/hiprand.h"
+ 
+ #else  // CUDA
+ 
