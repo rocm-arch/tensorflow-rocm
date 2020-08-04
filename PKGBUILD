@@ -8,7 +8,7 @@ pkgbase=tensorflow-rocm
 pkgname=(tensorflow-rocm tensorflow-opt-rocm python-tensorflow-rocm python-tensorflow-opt-rocm)
 pkgver=2.3.0
 _pkgver=2.3.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Library for computation using data flow graphs for scalable machine learning"
 url="https://www.tensorflow.org/"
 license=('APACHE')
@@ -25,7 +25,7 @@ source=("$pkgname-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archi
 sha512sums=('86aa087ea84dac1ecc1023b23a378100d41cc6778ccd20404a4b955fc67cef11b3dc08abcc5b88020124d221e6fb172b33bd5206e9c9db6bc8fbeed399917eac'
             'df2e0373e2f63b8766f31933f7db57f6a7559b8f03af1db51644fba87731451a7cd3895529a3192e5394612fcb42f245b794b1c9ca3c05881ca03a547c8c9acc'
             'e51e3f3dced121db3a09fbdaefd33555536095584b72a5eb6f302fa6fa68ab56ea45e8a847ec90ff4ba076db312c06f91ff672e08e95263c658526582494ce08'
-'2ee01810efb836a746bb46376f1a0463019ff3433c2761fa82bbcf8dc805a07225a8626e7eb2a302b95f244d2d037e1795bc50194ac41f26c456fc6293ca8a74')
+            '2ee01810efb836a746bb46376f1a0463019ff3433c2761fa82bbcf8dc805a07225a8626e7eb2a302b95f244d2d037e1795bc50194ac41f26c456fc6293ca8a74')
 
 get_pyver () {
   python -c 'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))'
