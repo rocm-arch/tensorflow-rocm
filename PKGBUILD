@@ -27,7 +27,7 @@ makedepends=('bazel' 'python-numpy' 'rocm' 'rocm-libs' 'miopen' 'rccl' 'git'
              'python-keras-applications' 'python-keras-preprocessing'
              'cython')
 optdepends=('tensorboard: Tensorflow visualization toolkit')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archive/v${_pkgver}.tar.gz"
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archive/v${_pkgver}.tar.gz"
         fix-h5py3.0.patch
         build-against-actual-mkl.patch)
 
