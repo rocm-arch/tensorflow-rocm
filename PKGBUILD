@@ -21,10 +21,10 @@ url="https://www.tensorflow.org/"
 license=('APACHE')
 arch=('x86_64')
 depends=('c-ares' 'intel-mkl' 'onednn' 'pybind11' 'openssl' 'lmdb' 'libpng' 'curl' 'giflib' 'icu' 'libjpeg-turbo')
-makedepends=('bazel' 'python-numpy' 'rocm-hip-sdk' 'miopen' 'rccl' 'git'
+makedepends=('bazel' 'python-numpy' 'rocm-hip-sdk' 'miopen' 'rccl' 'roctracer' 'hipsolver' 'git'
              'python-pip' 'python-wheel' 'python-setuptools' 'python-h5py'
              'python-keras-applications' 'python-keras-preprocessing'
-             'cython' 'roctracer' 'hipsolver')
+             'cython')
 optdepends=('tensorboard: Tensorflow visualization toolkit')
 source=("$pkgname::git+https://github.com/ROCmSoftwarePlatform/tensorflow-upstream.git"
         fix-c++17-compat.patch
