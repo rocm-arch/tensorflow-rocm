@@ -12,7 +12,6 @@ _build_opt=1
 
 pkgname=()
 [ "$_build_no_opt" -eq 1 ] && pkgname+=(tensorflow-rocm python-tensorflow-rocm)
-[ "$_build_opt" -eq 1 ] && pkgname+=(tensorflow-opt-rocm python-tensorflow-opt-rocm)
 
 pkgver=2.8.0
 _pkgver=2.8.0
@@ -25,13 +24,16 @@ depends=('c-ares' 'intel-mkl' 'onednn' 'pybind11' 'openssl' 'lmdb' 'libpng' 'cur
 makedepends=('bazel' 'python-numpy' 'rocm-hip-sdk' 'miopen' 'rccl' 'git'
              'python-pip' 'python-wheel' 'python-setuptools' 'python-h5py'
              'python-keras-applications' 'python-keras-preprocessing'
-             'cython')
+             'cython' 'rocblas' 'rocrand' 'rocfft' 'hipfft' 'roctracer'
+             'hipsparse' 'hipsolver' 'rocsolver' 'rocm-hip-sdk')
 optdepends=('tensorboard: Tensorflow visualization toolkit')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archive/v${_pkgver}.tar.gz"
-        fix-c++17-compat.patch)
+source=("$pkgname::git+https://github.com/ROCmSoftwarePlatform/tensorflow-upstream.git"
+        fix-c++17-compat.patch
+        hiprand.patch)
 
-sha512sums=('9cddb78c0392b7810e71917c3731f895e31c250822031ac7f498bf20435408c640b2fba4de439fa4a47c70dbff38b86e50fed2971df1f1916f23f9490241cfed'
-            'f682368bb47b2b022a51aa77345dfa30f3b0d7911c56515d428b8326ee3751242f375f4e715a37bb723ef20a86916dad9871c3c81b1b58da85e1ca202bc4901e')
+sha512sums=('SKIP'
+            'f682368bb47b2b022a51aa77345dfa30f3b0d7911c56515d428b8326ee3751242f375f4e715a37bb723ef20a86916dad9871c3c81b1b58da85e1ca202bc4901e'
+            'b4650e9e28da71c6376096cc1ebc284f03c36bfad20bd8917a0f44d69457e11b2dfd95d677c77a30bab420cd8a48c7b6e8bba97fd1c0cc0dea772460e13236da')
 
 # consolidate common dependencies to prevent mishaps
 _common_py_depends=(python-termcolor python-astor python-gast03 python-numpy python-protobuf absl-py python-h5py python-keras python-keras-applications python-keras-preprocessing python-tensorflow-estimator python-opt_einsum python-astunparse python-pasta python-flatbuffers)
@@ -63,14 +65,11 @@ check_dir() {
 
 prepare() {
   # Allow any bazel version
-  echo "*" > tensorflow-${_pkgver}/.bazelversion
+  echo "*" > tensorflow-rocm/.bazelversion
 
   # Get rid of hardcoded versions. Not like we ever cared about what upstream
   # thinks about which versions should be used anyway. ;) (FS#68772)
-  sed -i -E "s/'([0-9a-z_-]+) .= [0-9].+[0-9]'/'\1'/" tensorflow-${_pkgver}/tensorflow/tools/pip_package/setup.py
-
-  cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-rocm
-  cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-opt-rocm
+  sed -i -E "s/'([0-9a-z_-]+) .= [0-9].+[0-9]'/'\1'/" tensorflow-rocm/tensorflow/tools/pip_package/setup.py
 
   # These environment variables influence the behavior of the configure call below.
   export PYTHON_BIN_PATH=/usr/bin/python
@@ -117,12 +116,14 @@ prepare() {
   export CXX=g++
 
   export BAZEL_ARGS="--config=mkl -c opt"
+  cd "${srcdir}"/tensorflow-rocm
+  patch --strip=1 < ../hiprand.patch
 }
 
 build() {
   if [ "$_build_no_opt" -eq 1 ]; then
     echo "Building with rocm and without non-x86-64 optimizations"
-    cd "${srcdir}"/tensorflow-${_pkgver}-rocm
+    cd "${srcdir}"/tensorflow-rocm
     export CC_OPT_FLAGS="-march=x86-64"
     export TF_NEED_CUDA=0
     export TF_NEED_ROCM=1
@@ -135,24 +136,6 @@ build() {
         //tensorflow:install_headers \
         //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package --gpu "${srcdir}"/tmprocm
-  fi
-
-
-  if [ "$_build_opt" -eq 1 ]; then
-    echo "Building with rocm and with non-x86-64 optimizations"
-    cd "${srcdir}"/tensorflow-${_pkgver}-opt-rocm
-    export CC_OPT_FLAGS="-march=haswell -O3"
-    export TF_NEED_CUDA=0
-    export TF_NEED_ROCM=1
-    ./configure
-    bazel \
-      build --config=avx2_linux \
-        ${BAZEL_ARGS[@]} \
-        //tensorflow:libtensorflow.so \
-        //tensorflow:libtensorflow_cc.so \
-        //tensorflow:install_headers \
-        //tensorflow/tools/pip_package:build_pip_package
-    bazel-bin/tensorflow/tools/pip_package/build_pip_package --gpu "${srcdir}"/tmpoptrocm
   fi
 }
 
@@ -229,18 +212,8 @@ package_tensorflow-rocm() {
   conflicts=(tensorflow)
   provides=(tensorflow)
 
-  cd "${srcdir}"/tensorflow-${_pkgver}-rocm
+  cd "${srcdir}"/tensorflow-rocm
   _package tmprocm
-}
-
-package_tensorflow-opt-rocm() {
-  pkgdesc="Library for computation using data flow graphs for scalable machine learning (with ROCM and AVX2 CPU optimizations)"
-  depends+=(rocm-hip-sdk miopen rccl)
-  conflicts=(tensorflow)
-  provides=(tensorflow tensorflow-rocm)
-
-  cd "${srcdir}"/tensorflow-${_pkgver}-opt-rocm
-  _package tmpoptrocm
 }
 
 package_python-tensorflow-rocm() {
@@ -249,18 +222,8 @@ package_python-tensorflow-rocm() {
   conflicts=(python-tensorflow)
   provides=(python-tensorflow)
 
-  cd "${srcdir}"/tensorflow-${_pkgver}-rocm
+  cd "${srcdir}"/tensorflow-rocm
   _python_package tmprocm
-}
-
-package_python-tensorflow-opt-rocm() {
-  pkgdesc="Library for computation using data flow graphs for scalable machine learning (with ROCM and AVX2 CPU optimizations)"
-  depends+=(tensorflow-rocm rocm-hip-sdk miopen rccl "${_common_py_depends[@]}")
-  conflicts=(python-tensorflow)
-  provides=(python-tensorflow python-tensorflow-rocm)
-
-  cd "${srcdir}"/tensorflow-${_pkgver}-opt-rocm
-  _python_package tmpoptrocm
 }
 
 # vim:set ts=2 sw=2 et:

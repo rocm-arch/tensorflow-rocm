@@ -1,0 +1,11 @@
+--- tensorflow-rocm/third_party/gpus/rocm_configure.bzl	2022-03-11 20:46:02.867224360 +0100
++++ tensorflow-rocm/third_party/gpus/rocm_configure.bzl	2022-03-11 20:47:46.923766740 +0100
+@@ -331,7 +331,7 @@
+             ("amdhip64", rocm_config.rocm_toolkit_path + "/hip"),
+             ("rocblas", rocm_config.rocm_toolkit_path + "/rocblas"),
+             (hipfft_or_rocfft, rocm_config.rocm_toolkit_path + "/" + hipfft_or_rocfft),
+-            ("hiprand", rocm_config.rocm_toolkit_path),
++            ("hiprand", rocm_config.rocm_toolkit_path + "/hiprand"),
+             ("MIOpen", rocm_config.rocm_toolkit_path + "/miopen"),
+             ("rccl", rocm_config.rocm_toolkit_path + "/rccl"),
+             ("hipsparse", rocm_config.rocm_toolkit_path + "/hipsparse"),
