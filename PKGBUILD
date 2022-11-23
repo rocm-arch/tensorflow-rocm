@@ -22,7 +22,7 @@ url="https://www.tensorflow.org/"
 license=('APACHE')
 arch=('x86_64')
 depends=('c-ares' 'pybind11' 'openssl' 'lmdb' 'libpng' 'curl' 'giflib' 'icu' 'libjpeg-turbo' 'openmp')
-makedepends=('bazel' 'python-numpy' 'opencl-amd-dev' 'python-pip' 'python-wheel'
+makedepends=('bazel' 'python-numpy' 'opencl-amd-dev' 'git' 'python-pip' 'python-wheel'
              'python-setuptools' 'python-h5py' 'python-keras-applications' 'python-keras-preprocessing'
              'cython' 'patchelf' 'python-requests')
 optdepends=('tensorboard: Tensorflow visualization toolkit')
