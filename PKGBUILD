@@ -82,7 +82,7 @@ prepare() {
   sed -i -E "s/'([0-9a-z_-]+) .= [0-9].+[0-9]'/'\1'/" tensorflow-${_pkgver}/tensorflow/tools/pip_package/setup.py
 
   # setup.py generates ~1Mb of warnings if you don't explicitly include namespace packages.
-  sed -i -E "s/find_packages/find_namespace_packages/" tensorflow-upstream/tensorflow/tools/pip_package/setup.py
+  sed -i -E "s/find_packages/find_namespace_packages/" tensorflow-${_pkgver}/tensorflow/tools/pip_package/setup.py
 
   patch -Np1 -i "${srcdir}/tensorflow-2.10-sparse-transpose-op2.patch" -d tensorflow-${_pkgver}
 
