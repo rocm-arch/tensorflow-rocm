@@ -25,7 +25,7 @@ depends=('c-ares' 'pybind11' 'openssl' 'libpng' 'curl' 'giflib' 'icu' 'libjpeg-t
 makedepends=('bazel' 'python-numpy' 'rocm-hip-sdk' 'roctracer' 'rccl' 'git' 'miopen' 'python-pip' 'python-wheel'
              'python-installer' 'python-setuptools' 'python-h5py' 'python-keras-applications'
              'python-keras-preprocessing' 'cython' 'patchelf' 'python-requests'
-             'gcc12')
+             'gcc12' 'jdk11-openjdk')
 optdepends=('tensorboard: Tensorflow visualization toolkit')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archive/v${_pkgver}.tar.gz"
         tensorflow-2.10-sparse-transpose-op2.patch
@@ -75,6 +75,7 @@ prepare() {
   # Since Tensorflow is currently imcompatible with Bazel 6, we're going to use
   # a local Bazel 5 to fix that. Stupid problems call for stupid solutions.
   install -Dm755 "${srcdir}"/bazel_nojdk-5.4.0-linux-x86_64 bazel/bazel
+  PATH="/usr/lib/jvm/java-11-openjdk/bin:$PATH"
   export PATH="${srcdir}/bazel:$PATH"
   bazel --version
 

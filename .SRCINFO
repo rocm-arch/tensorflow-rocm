@@ -23,6 +23,7 @@ pkgbase = tensorflow-rocm
 	makedepends = patchelf
 	makedepends = python-requests
 	makedepends = gcc12
+	makedepends = jdk11-openjdk
 	depends = c-ares
 	depends = pybind11
 	depends = openssl
