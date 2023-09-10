@@ -32,16 +32,16 @@ source=("$pkgname-$pkgver.tar.gz::https://github.com/tensorflow/tensorflow/archi
         https://github.com/bazelbuild/bazel/releases/download/5.4.0/bazel_nojdk-5.4.0-linux-x86_64
         fix-c++17-compat.patch
         cudnn-fix.patch
-        rocm_configure.bzl.patch
-        rocm_configure-Add-llvm-16-include-path.patch)
+        "llvm_includes.patch::https://github.com/tensorflow/tensorflow/commit/c97cec76fc145c25543b0e7545d5ea3ad4f8e764.patch"
+        "hipcc_path.patch::https://patch-diff.githubusercontent.com/raw/tensorflow/tensorflow/pull/61824.patch")
 
 sha512sums=('9273720b5be08e5d3dc76aafa4af6b27a2d50afd02b181e7632f3d70961995b2e0e5acb13e70c9b704ef475617c23d70047fbe74d5b63b156cf8f2fa8a856b84'
             '45325ef3130aa95d48121d8c39bb4e683bdb5faa936ff29af953a2c359edb441a29e2dc0cae53ec6c08eee0432c0eeeaa7a40fbd063467b7f3c250d0f7f8ffed'
             'e2adb747cd1fe3c90686831703618af3f8bc8197a96d9e1e90e66db38dbc4e7a94d88dac755b25e288002983a87fcffbfb0d7c2e356d979d4635301c3daf9281'
             'f682368bb47b2b022a51aa77345dfa30f3b0d7911c56515d428b8326ee3751242f375f4e715a37bb723ef20a86916dad9871c3c81b1b58da85e1ca202bc4901e'
             '0e2c5e1afea7a62f98cb3ed296184ec11f40a893eb2263e87436f55bcb31eb40094b58bdc49aba95b8e971121d41efc9e143197ca4b19740b6eb6e003ec35141'
-            '572615399558cfb59e3d4311864ca6349f2fd039ddce6f85d85f24d52858f6705df320891730fd4114e7ef81e53b67cc9e03bd871c47ee640693460fb0e490ea'
-            '44c53791b028e7322e659bc98a654a7cc91e5a6ee68506dbf18db45df95d5fc01c1b8930dd6e642cfb6836f81f0234c737494ccf22457c6cf9a48d5f893eaa61')
+            'eb32e9629c58c09812a9b85b2acb2edb9e802ece7f3e7a731d0523ab095d98b59cdb6f205485c128b072a0b9a7001563140e9b1d24419ed5c08cb9ed36b08166'
+            'SKIP')
 
 # consolidate common dependencies to prevent mishaps
 _common_py_depends=(python-termcolor python-astor python-gast03 python-numpy python-protobuf
@@ -95,9 +95,9 @@ prepare() {
   # https://github.com/tensorflow/tensorflow/issues/60398
   patch -Np0 -i "${srcdir}/cudnn-fix.patch"
 
-  patch -Np1 -i "${srcdir}/rocm_configure.bzl.patch" -d tensorflow-${_pkgver}
+  patch -Np1 -i "${srcdir}/llvm_includes.patch" -d tensorflow-${_pkgver}
 
-  patch -Np1 -i "${srcdir}/rocm_configure-Add-llvm-16-include-path.patch" -d tensorflow-${_pkgver}
+  patch -Np1 -i "${srcdir}/hipcc_path.patch" -d tensorflow-${_pkgver}
 
   cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-rocm
   cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-opt-rocm
