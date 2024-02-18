@@ -1,0 +1,45 @@
+--- PKGBUILD_bkp	2024-02-18 00:10:51.270027232 +0100
++++ PKGBUILD	2024-02-18 13:29:37.917832976 +0100
+@@ -7,7 +7,7 @@
+ pkgbase=tensorflow-rocm
+ 
+ # Flags for building without/with cpu optimizations
+-_build_no_opt=1
++_build_no_opt=0
+ _build_opt=1
+ 
+ pkgname=()
+@@ -79,8 +79,22 @@
+   # thinks about which versions should be used anyway. ;) (FS#68772)
+   sed -i -E "s/'([0-9a-z_-]+) .= [0-9].+[0-9]'/'\1'/" tensorflow-${_pkgver}/tensorflow/tools/pip_package/setup.py
+ 
+-  cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-rocm
+-  cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-opt-rocm
++  #Patch rocm missing function
++  >&2 echo "Patching stream_executor"
++  patch tensorflow-${_pkgver}/third_party/xla/xla/stream_executor/rocm/rocm_driver.cc < fix-rocm_driver.patch
++  patch tensorflow-${_pkgver}/third_party/xla/xla/stream_executor/rocm/rocm_driver_wrapper.h < fix-rocm_driver_wrapper.patch
++
++  >&2 echo "Patching pip script"
++  #Patch pip script copy error if partial previous build
++  patch tensorflow-${_pkgver}/tensorflow/tools/pip_package/build_pip_package.sh < fix-bazel_copy.patch
++
++  if [ "$_build_no_opt" -eq 1 ]; then
++    cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-rocm
++  fi
++  if [ "$_build_opt" -eq 1 ]; then
++    cp -r tensorflow-${_pkgver} tensorflow-${_pkgver}-opt-rocm
++  fi
++  rm -rf tensorflow-${_pkgver}
+ 
+   # These environment variables influence the behavior of the configure call below.
+   export TF_NEED_JEMALLOC=1
+@@ -157,7 +171,7 @@
+   if [ "$_build_opt" -eq 1 ]; then
+     echo "Building with rocm and with non-x86-64 optimizations"
+     cd "${srcdir}"/tensorflow-${_pkgver}-opt-rocm
+-    export CC_OPT_FLAGS="-march=haswell -O3"
++    export CC_OPT_FLAGS="-march=native -O3"
+     export TF_NEED_CUDA=0
+     export TF_NEED_ROCM=1
+     ./configure

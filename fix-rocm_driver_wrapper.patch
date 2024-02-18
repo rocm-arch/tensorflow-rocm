@@ -1,0 +1,10 @@
+--- tensorflow-2.15.0/third_party/xla/xla/stream_executor/rocm/rocm_driver_wrapper.h	2023-11-10 22:16:52.000000000 +0100
++++ rocm_driver_wrapper.h	2024-02-18 12:57:48.480734371 +0100
+@@ -99,6 +99,7 @@
+   __macro(hipGetDeviceProperties)                   \
+   __macro(hipGetErrorString)                        \
+   __macro(hipGraphAddKernelNode)                    \
++  __macro(hipGraphExecKernelNodeSetParams)          \
+   __macro(hipGraphAddMemcpyNode)                    \
+   __macro(hipGraphCreate)                           \
+   __macro(hipGraphDebugDotPrint)                    \
