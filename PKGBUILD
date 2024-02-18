@@ -7,7 +7,7 @@
 pkgbase=tensorflow-rocm
 
 # Flags for building without/with cpu optimizations
-_build_no_opt=0
+_build_no_opt=1
 _build_opt=1
 
 pkgname=()
@@ -171,7 +171,7 @@ build() {
   if [ "$_build_opt" -eq 1 ]; then
     echo "Building with rocm and with non-x86-64 optimizations"
     cd "${srcdir}"/tensorflow-${_pkgver}-opt-rocm
-    export CC_OPT_FLAGS="-march=native -O3"
+    export CC_OPT_FLAGS="-march=haswell -O3"
     export TF_NEED_CUDA=0
     export TF_NEED_ROCM=1
     ./configure
